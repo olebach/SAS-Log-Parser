@@ -1,0 +1,88 @@
+/* Macro for Statistical tests */
+%macro tests(libname=, ds=, var=, test=, class=);
+	%if &test=ttest %then %do;
+		proc ttest data=&libname..&ds;
+			class &class.;
+			var &var;
+		run;
+	%end;
+	%else %if &test=chisq %then %do;
+		proc freq data=&libname..&ds;
+			table &class * &var/chisq;
+		run;
+	%end;
+%mend tests;
+
+/*===============================================================================================================*/
+%let path = path_to_store_txt_file;
+
+/* SET PATH TO SAVE THE SCAPROC PROCEDURE LOG FILE*/
+proc scaproc; 
+   record "&path./sas_log.txt" OPENTIMES EXPANDMACROS; 
+run;
+
+
+/*===============================================================================================================*/
+/* PROCESS TO BE ANALYZED SHOULD BE PLACED HERE */
+/* Step 1 */
+data work.data1;
+	set sashelp.class;
+run;
+
+/* Step 2 */
+data work.data2;
+	set work.data1;
+	log_h_w=log(height*weight);
+run;
+
+/* Step 3 */
+proc sql;
+	create table work.procsql1 as
+		select *
+				, log_h_w ** 2 as log_h_w_p2
+		from work.data2
+;quit;
+
+/* Step 4 */
+proc sql;
+	create table work.procsql_join1 as
+		select ds1_join.*, ds2_join.log_h_w
+		from work.data1 as ds1_join 
+			left join work.data2 as ds2_join 
+				on ds1_join.name=ds2_join.name
+;quit;
+
+/* Step 5 */
+proc means data=sashelp.class;
+	var Age;
+run;
+
+/* Step 6 */
+proc freq data=sashelp.class;
+	table Sex;
+run;
+
+/* Step 7 */
+%tests(libname=sashelp, ds=class, var=age, test=ttest, class=sex);
+
+/* Step 8 */
+%tests(libname=sashelp, ds=cars, var=type, test=chisq, class=origin)
+
+/* Step 9 */
+data work.data3;
+	set sashelp.class; where age ge 13;
+	if sex = 'M' then projected_height=height*1.10;
+	else if sex = 'F' then projected_height=height*1.075;
+run;
+
+/* Step 10 */
+proc sort data=work.data3 out=work.sort1;
+	by projected_height;
+run;
+
+
+/*===============================================================================================================*/
+/* WRITE LOG TO THE FILE IN PRIEVIOUSLY STATED FILE PATCH */
+proc scaproc; 
+   write; 
+run;
