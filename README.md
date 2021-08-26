@@ -28,7 +28,7 @@ proc scaproc;
 run;
 ```
 
-This log will contain information about input and output tables, process execution times and the use of macro symbols in the SAS code. An example of a sample code as well as the resulting log is availiable is includer in this repository.
+This log will contain information about input and output tables, process execution times and the use of macro symbols in the SAS code. An example of a sample code as well as the resulting log is availiable in this repository.
 
 ### 2. Jupyter notebook
 
@@ -36,8 +36,8 @@ Once the log is obtained, the user can launch the notebook in order to visualise
 
 1) **The Log parsing** section extracts the information from the txt file and prepares 3 tables: 
     - df_log contains information on all the actions performed by the SAS process.
-    - df_code is a short summary of the SAS code (code syntax, exection time, procedure used, etc. 
-    - df_connections contains the information about all tables used in the process and their relationships
+    - df_code is a short summary of the SAS code (code syntax, exection time, procedure used, etc.)
+    - df_connections contains the information about all tables used in the process and relationships between them
 
 2) **The Graph Data** section generates a networkx Graph and performs network analysis on the table connections.
 
